@@ -120,3 +120,31 @@ Which of these are **MISSING**?
 
 - Draft PR: https://github.com/uSs3ewa/DevSecOps-Intro/pull/1
 - Screenshot: `artifacts/lab1/pr-template-autofill.png`
+
+## GitHub Community
+
+### Starred repositories
+
+- https://github.com/inno-devops-labs/DevSecOps-Intro
+- https://github.com/simple-container-com/api
+
+### Following
+
+- Course instructor
+- Three classmates
+
+### Why this matters
+
+Following the GitHub community helps me stay informed about repository updates, discussions, pull requests, and new learning materials. It also encourages collaboration and knowledge sharing during the course.
+
+
+## Bonus Task
+
+* Workflow file: `.github/workflows/lab1-smoke.yml`
+* Trigger: `pull_request`
+* Workflow permissions: `contents: read`
+* Smoke test: verifies HTTP 200 from OWASP Juice Shop within the configured timeout.
+* Result: **Passed** ✅
+
+Workflow run:
+https://github.com/uSs3ewa/DevSecOps-Intro/actions/runs/28152774363
