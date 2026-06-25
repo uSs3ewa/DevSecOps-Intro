@@ -101,3 +101,19 @@ Which of these are **MISSING**?
 3. **Permissive Cross-Origin Resource Sharing (CORS)**
    The application returns the header `Access-Control-Allow-Origin: *`, allowing requests from any origin. While acceptable for a deliberately vulnerable training application, such a configuration could expose APIs unnecessarily in a production environment if sensitive resources are available.
    **OWASP Top 10:2025:** A05 – Security Misconfiguration.
+
+## PR Template Setup
+
+* File: `.github/PULL_REQUEST_TEMPLATE.md`
+* Sections included:
+
+  * Goal
+  * Changes
+  * Testing
+  * Artifacts & Screenshots
+* Checklist items:
+
+  * Title is clear (`feat(labN): <topic>`)
+  * No secrets/large temp files committed
+  * Submission file at `submissions/labN.md` exists
+* Auto-fill verified: **[ ] Yes** — Not verified because the assignment was submitted through the university LMS instead of a GitHub Pull Request.
