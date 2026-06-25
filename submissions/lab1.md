@@ -18,7 +18,7 @@
   docker run -d --name juice-shop -p 127.0.0.1:3000:3000 bkimminich/juice-shop:v20.0.0
   ```
 * Access URL: http://127.0.0.1:3000
-* Network exposure: **[x] Yes** (bound only to `127.0.0.1`)
+* Network exposure: **[x] Yes** (exposed only on `127.0.0.1`)
 * Container restart policy: `no`
 
 ### Health Check
@@ -104,16 +104,47 @@ Which of these are **MISSING**?
 
 ## PR Template Setup
 
-* File: `.github/PULL_REQUEST_TEMPLATE.md`
-* Sections included:
+- File: `.github/PULL_REQUEST_TEMPLATE.md`
+- Sections included:
+  - Goal
+  - Changes
+  - Testing
+  - Artifacts & Screenshots
+- Checklist items:
+  - Title is clear (`feat(labN): <topic>`)
+  - No secrets/large temp files committed
+  - Submission file at `submissions/labN.md` exists
+- Auto-fill verified: **[x] Yes** — Verified by creating a Draft Pull Request in my fork. The PR description was automatically populated from `.github/PULL_REQUEST_TEMPLATE.md`.
 
-  * Goal
-  * Changes
-  * Testing
-  * Artifacts & Screenshots
-* Checklist items:
+### Evidence
 
-  * Title is clear (`feat(labN): <topic>`)
-  * No secrets/large temp files committed
-  * Submission file at `submissions/labN.md` exists
-* Auto-fill verified: **[ ] Yes** — Not verified because the assignment was submitted through the university LMS instead of a GitHub Pull Request.
+- Draft PR: https://github.com/uSs3ewa/DevSecOps-Intro/pull/1
+- Screenshot: `artifacts/lab1/pr-template-autofill.png`
+
+## GitHub Community
+
+### Starred repositories
+
+- https://github.com/inno-devops-labs/DevSecOps-Intro
+- https://github.com/simple-container-com/api
+
+### Following
+
+- Course instructor
+- Three classmates
+
+### Why this matters
+
+Following the GitHub community helps me stay informed about repository updates, discussions, pull requests, and new learning materials. It also encourages collaboration and knowledge sharing during the course.
+
+
+## Bonus Task
+
+* Workflow file: `.github/workflows/lab1-smoke.yml`
+* Trigger: `pull_request`
+* Workflow permissions: `contents: read`
+* Smoke test: verifies HTTP 200 from OWASP Juice Shop within the configured timeout.
+* Result: **Passed** ✅
+
+Workflow run:
+https://github.com/uSs3ewa/DevSecOps-Intro/actions/runs/28152774363
