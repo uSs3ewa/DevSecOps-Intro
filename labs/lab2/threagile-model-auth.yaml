@@ -1,0 +1,381 @@
+threagile_version: 1.0.0
+
+title: Juice Shop Auth Flow
+date: 2026-06-25
+
+author:
+  name: Student Name
+  homepage: https://example.edu
+
+management_summary_comment: >
+  Focused threat model for the authentication flow of OWASP Juice Shop:
+  login/registration, JWT issuance, session handling, and admin-only endpoints.
+
+business_criticality: important
+
+business_overview:
+  description: >
+    This model narrows the scope of the Juice Shop architecture to the auth flow:
+    how users authenticate, how tokens are issued and validated, and how admin
+    operations are protected.
+  images: []
+
+tags_available:
+  - auth
+  - tokens
+  - jwt
+  - browser
+  - api
+  - admin
+
+# =========================
+# DATA ASSETS
+# =========================
+data_assets:
+
+  Credentials:
+    id: credentials
+    description: "Usernames, email addresses, and passwords (or password hashes)."
+    usage: business
+    tags: ["auth"]
+    origin: user-supplied
+    owner: Lab Owner
+    quantity: many
+    confidentiality: confidential
+    integrity: important
+    availability: important
+    justification_cia_rating: "Compromise of credentials leads directly to account takeover."
+
+  JWT Token:
+    id: jwt-token
+    description: "Signed JWT access tokens returned to clients after authentication."
+    usage: business
+    tags: ["auth", "tokens", "jwt"]
+    origin: application
+    owner: Lab Owner
+    quantity: many
+    confidentiality: confidential
+    integrity: important
+    availability: important
+    justification_cia_rating: "If tokens leak or can be forged, attackers can impersonate users or admins."
+
+  Session State:
+    id: session-state
+    description: "Server-side session or cached auth state derived from JWTs."
+    usage: business
+    tags: ["auth"]
+    origin: application
+    owner: Lab Owner
+    quantity: many
+    confidentiality: internal
+    integrity: important
+    availability: important
+    justification_cia_rating: "Corrupted session state can bypass authorization or break logouts."
+
+  Admin Requests:
+    id: admin-requests
+    description: "Requests to admin-only endpoints (e.g., viewing user list, changing roles)."
+    usage: business
+    tags: ["admin"]
+    origin: user-supplied
+    owner: Lab Owner
+    quantity: few
+    confidentiality: confidential
+    integrity: critical
+    availability: important
+    justification_cia_rating: "Abuse of admin operations can impact all users and data."
+
+  Signing Key:
+    id: signing-key
+    description: "Secret key used to sign and verify JWT tokens."
+    usage: devops
+    tags: ["auth", "tokens", "jwt"]
+    origin: devops
+    owner: Lab Owner
+    quantity: very-few
+    confidentiality: strictly-confidential
+    integrity: critical
+    availability: important
+    justification_cia_rating: "If the JWT signing key is leaked or modified, all tokens can be forged or invalidated."
+
+# =========================
+# TECHNICAL ASSETS
+# =========================
+technical_assets:
+
+  Browser:
+    id: browser
+    description: "End-user web browser (client)."
+    type: external-entity
+    usage: business
+    used_as_client_by_human: true
+    out_of_scope: false
+    justification_out_of_scope:
+    size: system
+    technology: browser
+    tags: ["browser"]
+    internet: true
+    machine: virtual
+    encryption: none
+    owner: External User
+    confidentiality: public
+    integrity: operational
+    availability: operational
+    justification_cia_rating: "Controlled by the user/attacker; treated as untrusted."
+    multi_tenant: false
+    redundant: false
+    custom_developed_parts: false
+    data_assets_processed:
+      - credentials
+      - jwt-token
+      - admin-requests
+    data_assets_stored: []
+    data_formats_accepted:
+      - json
+    communication_links:
+      To Auth API:
+        target: auth-api
+        description: "Login and registration requests carrying user credentials."
+        protocol: https
+        authentication: none
+        authorization: none
+        tags: ["auth"]
+        vpn: false
+        ip_filtered: false
+        readonly: false
+        usage: business
+        data_assets_sent:
+          - credentials
+        data_assets_received:
+          - jwt-token
+      To API with JWT:
+        target: auth-api
+        description: "Authenticated API calls with JWT in Authorization header."
+        protocol: https
+        authentication: none
+        authorization: none
+        tags: ["tokens"]
+        vpn: false
+        ip_filtered: false
+        readonly: false
+        usage: business
+        data_assets_sent:
+          - jwt-token
+          - admin-requests
+        data_assets_received:
+          - session-state
+
+  Auth API:
+    id: auth-api
+    description: "Juice Shop auth API endpoints (login, register, token validation, admin routes)."
+    type: process
+    usage: business
+    used_as_client_by_human: false
+    out_of_scope: false
+    justification_out_of_scope:
+    size: application
+    technology: web-server
+    tags: ["api", "auth"]
+    internet: false
+    machine: container
+    encryption: none
+    owner: Lab Owner
+    confidentiality: internal
+    integrity: important
+    availability: important
+    justification_cia_rating: "Central component enforcing auth and authorization."
+    multi_tenant: false
+    redundant: false
+    custom_developed_parts: true
+    data_assets_processed:
+      - credentials
+      - jwt-token
+      - session-state
+      - admin-requests
+    data_assets_stored: []
+    data_formats_accepted:
+      - json
+    communication_links:
+      To Token Service:
+        target: token-service
+        description: "Internal call to sign JWTs and validate tokens."
+        protocol: http
+        authentication: none
+        authorization: none
+        tags: ["tokens"]
+        vpn: false
+        ip_filtered: false
+        readonly: false
+        usage: business
+        data_assets_sent:
+          - credentials
+        data_assets_received:
+          - jwt-token
+      To Credential Store:
+        target: credential-store
+        description: "Reads and updates user credential records using parameterized queries / prepared statements."
+        protocol: jdbc-encrypted
+        authentication: none
+        authorization: none
+        tags: ["auth"]
+        vpn: false
+        ip_filtered: false
+        readonly: false
+        usage: business
+        data_assets_sent:
+          - credentials
+        data_assets_received:
+          - credentials
+      To Admin Endpoint:
+        target: admin-endpoint
+        description: "Internal call to perform admin-only operations after JWT/role verification."
+        protocol: http
+        authentication: none
+        authorization: none
+        tags: ["admin"]
+        vpn: false
+        ip_filtered: false
+        readonly: false
+        usage: business
+        data_assets_sent:
+          - admin-requests
+        data_assets_received:
+          - session-state
+
+  Token Service:
+    id: token-service
+    description: "Component responsible for signing and verifying JWT tokens."
+    type: process
+    usage: business
+    used_as_client_by_human: false
+    out_of_scope: false
+    justification_out_of_scope:
+    size: component
+    technology: web-service-rest
+    tags: ["tokens", "jwt"]
+    internet: false
+    machine: container
+    encryption: none
+    owner: Lab Owner
+    confidentiality: internal
+    integrity: important
+    availability: important
+    justification_cia_rating: "If compromised, can issue arbitrary tokens and bypass auth."
+    multi_tenant: false
+    redundant: false
+    custom_developed_parts: true
+    data_assets_processed:
+      - jwt-token
+      - signing-key
+    data_assets_stored:
+      - signing-key
+    data_formats_accepted:
+      - json
+    communication_links: {}
+
+  Credential Store:
+    id: credential-store
+    description: "User database / credential store for auth (password hashes and related data)."
+    type: datastore
+    usage: business
+    used_as_client_by_human: false
+    out_of_scope: false
+    justification_out_of_scope:
+    size: component
+    technology: database
+    tags: ["auth"]
+    internet: false
+    machine: container
+    encryption: data-with-symmetric-shared-key
+    owner: Lab Owner
+    confidentiality: confidential
+    integrity: critical
+    availability: important
+    justification_cia_rating: "Compromise of the credential store compromises all accounts."
+    multi_tenant: false
+    redundant: false
+    custom_developed_parts: false
+    data_assets_processed:
+      - credentials
+    data_assets_stored:
+      - credentials
+    data_formats_accepted:
+      - json
+    communication_links: {}
+
+  Admin Endpoint:
+    id: admin-endpoint
+    description: "Admin-only API endpoint within the Juice Shop backend."
+    type: process
+    usage: business
+    used_as_client_by_human: false
+    out_of_scope: false
+    justification_out_of_scope:
+    size: component
+    technology: web-server
+    tags: ["admin"]
+    internet: false
+    machine: container
+    encryption: none
+    owner: Lab Owner
+    confidentiality: internal
+    integrity: important
+    availability: important
+    justification_cia_rating: "Abuse of this component can impact all users and data."
+    multi_tenant: false
+    redundant: false
+    custom_developed_parts: true
+    data_assets_processed:
+      - admin-requests
+      - session-state
+    data_assets_stored: []
+    data_formats_accepted:
+      - json
+    communication_links: {}
+
+# =========================
+# TRUST BOUNDARIES
+# =========================
+trust_boundaries:
+
+  Internet:
+    id: internet
+    description: "Untrusted public network."
+    type: network-dedicated-hoster
+    tags: []
+    technical_assets_inside:
+      - browser
+    trust_boundaries_nested:
+      - container-network
+
+  Container Network:
+    id: container-network
+    description: "Container network hosting the auth API and related components."
+    type: network-dedicated-hoster
+    tags: []
+    technical_assets_inside:
+      - auth-api
+      - token-service
+      - credential-store
+      - admin-endpoint
+    trust_boundaries_nested: []
+
+# =========================
+# SHARED RUNTIMES
+# =========================
+shared_runtimes:
+
+  Auth Container Host:
+    id: auth-host
+    description: "Host or orchestrator running the auth-related containers."
+    tags: ["auth"]
+    technical_assets_running:
+      - auth-api
+      - token-service
+      - credential-store
+      - admin-endpoint
+
+individual_risk_categories: {}
+
+risk_tracking: {}
+
