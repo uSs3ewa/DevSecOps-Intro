@@ -28,3 +28,8 @@ node_modules/
 .venv/
 .DS_Store
 *.swp
+
+# Lab 4 generated scan reports
+.mimocode/
+labs/lab4/grype-from-sbom.*
+labs/lab4/trivy.*
