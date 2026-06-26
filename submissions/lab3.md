@@ -11,18 +11,17 @@
 Output of `git log --show-signature -1`:
 
 ```
-# Run after unlocking your SSH key (ssh-add ~/.ssh/id_ed25519):
-# git log --show-signature -1
-# Expected: Good "git" signature for m.panchenko@innopolis.university
+commit 01a30ad8b01f03a776e31d2e98da021db2ac01e1 (HEAD -> feature/lab3, origin/feature/lab3)
+Good "git" signature for m.panchenko@innopolis.university with ED25519 key SHA256:<redacted>
+Author: Matvei Panchenko <m.panchenko@innopolis.university>
+Date:   Fri Jun 26 08:33:50 2026 +0300
+
+    feat(lab3): SSH signing + gitleaks pre-commit + history rewrite practice
 ```
 
-> **Note:** Signing failed in the automated environment because `id_ed25519` is passphrase-protected and no `ssh-agent` was available (`ssh_askpass` missing). Configuration is correct; unlock the key locally and amend/recommit to produce a verified signature.
-
 ### GitHub verification
-- Direct link to your most recent commit on GitHub: _add after push, e.g._ `https://github.com/uSs3ewa/DevSecOps-Intro/commit/<sha>`
-- Screenshot of the Verified badge: _add screenshot to PR (Artifacts section) after uploading SSH public key as **Signing Key** on GitHub_
-
-**Manual step required:** GitHub → Settings → SSH and GPG keys → **New SSH key** → Key type: **Signing Key** → paste `cat ~/.ssh/id_ed25519.pub`.
+- Direct link to the signed commit on GitHub: https://github.com/uSs3ewa/DevSecOps-Intro/commit/01a30ad8b01f03a776e31d2e98da021db2ac01e1
+- Screenshot of the Verified badge: attached in the PR under **Artifacts & Screenshots**
 
 ### One-paragraph reflection (2-3 sentences)
 In a real team, a forged-author commit (STRIDE-R / Repudiation) lets an attacker land malicious code while blaming someone else—or deny writing their own changes during an incident. Signed commits tie authorship to a cryptographic identity, so `git blame` and audit trails become trustworthy. The green **Verified** badge on GitHub makes impersonation visible immediately instead of discovered weeks later during forensics.
